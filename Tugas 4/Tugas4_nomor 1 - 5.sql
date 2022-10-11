@@ -19,4 +19,33 @@ WHERE ss_mahasiswa.nama = "Sulaeman";
 
 -- 4
 ALTER TABLE customers
-ADD `status` VARCHAR (7);
+ADD `status` VARCHAR (7) DEFAULT "Reguler";
+
+UPDATE customers
+INNER JOIN payments
+ON customers.customerNumber = payments.customerNumber
+INNER JOIN orders
+ON customers.customerNumber = orders.customerNumber
+INNER JOIN orderdetails
+ON orders.orderNumber = orderdetails.orderNumber
+SET customers.`status` = "VIP"
+WHERE payments.amount > 100000 OR orderdetails.quantityOrdered > 50
+
+
+-- 5
+
+select COLUMN_NAME, CONSTRAINT_NAME, REFERENCED_COLUMN_NAME,
+REFERENCED_TABLE_NAME
+from information_schema.KEY_COLUMN_USAGE
+where TABLE_NAME = 'nama_tabel';
+
+ALTER TABLE orders DROP CONSTRAINT orders_ibfk_1;
+ALTER TABLE orderdetails DROP CONSTRAINT orderdetails_ibfk_1;
+ALTER TABLE payments DROP CONSTRAINT payments_ibfk_1;
+
+DELETE customers FROM customers
+INNER JOIN orders
+ON customers.customerNumber = orders.customerNumber
+WHERE orders.`status` = "Cancelled";
+
+-- SELECT * FROM orders WHERE `status` = "Cancelled";
