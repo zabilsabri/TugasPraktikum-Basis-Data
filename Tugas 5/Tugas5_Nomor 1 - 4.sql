@@ -2,7 +2,7 @@
 SELECT customers.customerNumber, customers.customerName, orders.`status`, orders.comments FROM customers
 INNER JOIN orders
 ON customers.customerNumber = orders.customerNumber
-WHERE orders.`status` = 'On Hold' && orders.comments LIKE '%exceed%';
+WHERE orders.`status` = 'On Hold' && orders.comments LIKE '%credit limit%';
 
 -- 2 
 SELECT customers.customerName, orders.`status`, orders.comments FROM customers
@@ -20,12 +20,12 @@ INNER JOIN products
 ON orderdetails.productCode = products.productCode
 WHERE products.productName LIKE '%ferrari%' ORDER BY orders.shippedDate DESC;
 
--- 4
+-- 4-- 
 INSERT INTO orders (orderNumber, orderDate, requiredDate, `status`, customerNumber)
-VALUES (10426, CURRENT_DATE, DATE_ADD(CURRENT_DATE, INTERVAL 1 YEAR), 'In Process', 465);
+SELECT 10426, CURRENT_DATE, DATE_ADD(CURRENT_DATE, INTERVAL 1 YEAR), 'In Process', customerNumber FROM customers
+WHERE customerName = 'Anton Designs, Ltd.'; 
 
 INSERT INTO orderdetails (orderNumber, productCode, quantityOrdered, priceEach, orderLineNumber)
-VALUES (10426, 'S18_2957', 50, 62.46 * 0.75, 1);
+SELECT 10426, productCode, 50, MSRP * 0.75, 1 FROM products
+WHERE productName = '1934 Ford V8 Coupe';
 
-SELECT * FROM orders WHERE orderNumber = 10426;
-SELECT * FROM orderdetails WHERE orderNumber = 10426;
