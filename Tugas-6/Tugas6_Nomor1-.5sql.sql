@@ -26,3 +26,36 @@ GROUP BY YEAR(payments.paymentDate)
 ORDER BY SUM(payments.amount) DESC;
 
 -- 4
+SELECT UPPER(products.productName) AS "Nama Produk", COUNT(orderdetails.priceEach) AS "Jumlah Di Order", GROUP_CONCAT(orders.orderDate SEPARATOR ", ") AS "Waktu Orderan", 
+products.buyPrice AS "Harga Beli", orderdetails.priceEach AS "Harga Jual", SUM(orderdetails.quantityOrdered) AS "Total Jumlah Orderan", 
+CONCAT(SUM(orderdetails.quantityOrdered) * orderdetails.priceEach, " - ",  SUM(orderdetails.quantityOrdered) * products.buyPrice, " = ", SUM(orderdetails.quantityOrdered) * orderdetails.priceEach - SUM(orderdetails.quantityOrdered) * products.buyPrice) AS "Pendapatan - Modal = Keuntungan"
+FROM products
+INNER JOIN orderdetails
+ON products.productCode = orderdetails.productCode
+INNER JOIN orders
+ON orderdetails.orderNumber = orders.orderNumber 
+WHERE orderdetails.productCode = 'S12_1108'
+GROUP BY orderdetails.priceEach
+HAVING SUM(orderdetails.quantityOrdered) * orderdetails.priceEach - SUM(orderdetails.quantityOrdered) * products.buyPrice > 5000
+ORDER BY SUM(orderdetails.quantityOrdered) * orderdetails.priceEach - SUM(orderdetails.quantityOrdered) * products.buyPrice DESC;
+
+-- 5
+SELECT offices.addressLine1, CONCAT(LEFT(offices.phone, LENGTH(offices.phone) - 6), "* ****"), COUNT(employees.officeCode) FROM employees
+INNER JOIN offices
+ON offices.officeCode = employees.officeCode
+GROUP BY offices.officeCode;
+
+
+SELECT offices.officeCode, count(customers.salesRepEmployeeNumber) FROM customers
+INNER JOIN employees
+ON employees.employeeNumber = customers.salesRepEmployeeNumber
+INNER JOIN offices
+ON offices.officeCode = employees.officeCode
+GROUP BY offices.officeCode;
+
+SELECT offices.addressLine1, CONCAT(LEFT(offices.phone, LENGTH(offices.phone) - 6), "* ****"), employees.officeCode, customers.salesRepEmployeeNumber
+FROM employees
+INNER JOIN offices
+ON offices.officeCode = employees.officeCode
+INNER JOIN customers
+ON employees.employeeNumber = customers.salesRepEmployeeNumber;
