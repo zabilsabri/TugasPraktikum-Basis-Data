@@ -8,16 +8,14 @@ HAVING Selisih > 0
 ORDER BY Selisih DESC;
 
 -- 2
--- SELECT @maxQuantity := MAX(quantityOrdered) FROM orderdetails;
-
-SELECT MAX(orderdetails.quantityOrdered) FROM orderdetails;
-
-SELECT CONCAT(customers.customerName, ' : ', customers.contactFirstName, ' ', customers.contactLastName, '@', customers.addressLine1) AS "Pelanggan", orderdetails.quantityOrdered AS "Jumlah Orderan" FROM customers
+SELECT CONCAT(customers.customerName, ' : ', customers.contactFirstName, ' ', customers.contactLastName, '@', customers.addressLine1) AS "Pelanggan", SUM(orderdetails.quantityOrdered) AS "Jumlah Orderan" FROM customers
 INNER JOIN orders
 ON customers.customerNumber = orders.customerNumber
 INNER JOIN orderdetails
 ON orders.orderNumber = orderdetails.orderNumber
-WHERE orderdetails.quantityOrdered = 97;
+GROUP BY customers.customerName
+ORDER BY SUM(orderdetails.quantityOrdered) DESC
+LIMIT 1;
 
 -- 3
 SELECT CONCAT("februari ", YEAR(payments.paymentDate)) AS "Hari Pembayaran", COUNT(CONCAT("februari ", YEAR(payments.paymentDate))) AS "Jumlah Pelanggan", GROUP_CONCAT(DISTINCT customers.customerName SEPARATOR ", ") AS "List Pelanggan", SUM(payments.amount) AS "Jumlah Pembayaran" FROM payments
@@ -36,7 +34,7 @@ INNER JOIN orderdetails
 ON products.productCode = orderdetails.productCode
 INNER JOIN orders
 ON orderdetails.orderNumber = orders.orderNumber 
-WHERE orderdetails.productCode = 'S12_1108' #
+WHERE products.productName = '2001 Ferrari Enzo'
 GROUP BY orderdetails.priceEach
 HAVING SUM(orderdetails.quantityOrdered) * orderdetails.priceEach - SUM(orderdetails.quantityOrdered) * products.buyPrice > 5000
 ORDER BY SUM(orderdetails.quantityOrdered) * orderdetails.priceEach - SUM(orderdetails.quantityOrdered) * products.buyPrice DESC;
@@ -46,8 +44,8 @@ SELECT offices.addressLine1 AS "Alamat", CONCAT(LEFT(offices.phone, LENGTH(offic
 FROM offices
 INNER JOIN employees
 ON offices.officeCode = employees.officeCode
-LEFT JOIN customers
+INNER JOIN customers
 ON customers.salesRepEmployeeNumber = employees.employeeNumber
-LEFT JOIN payments
+INNER JOIN payments
 ON customers.customerNumber = payments.customerNumber
-GROUP BY offices.officeCode
+GROUP BY offices.officeCode;
