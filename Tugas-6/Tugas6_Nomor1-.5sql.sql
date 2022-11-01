@@ -10,12 +10,14 @@ ORDER BY Selisih DESC;
 -- 2
 -- SELECT @maxQuantity := MAX(quantityOrdered) FROM orderdetails;
 
-SELECT CONCAT(customers.customerName, ' : ', customers.contactFirstName, ' ', customers.contactLastName, '@', customers.addressLine1) AS Pelanggan, orderDetails.quantityOrdered AS `Jumlah Orderan` FROM customers
+SELECT MAX(orderdetails.quantityOrdered) FROM orderdetails;
+
+SELECT CONCAT(customers.customerName, ' : ', customers.contactFirstName, ' ', customers.contactLastName, '@', customers.addressLine1) AS "Pelanggan", orderdetails.quantityOrdered AS "Jumlah Orderan" FROM customers
 INNER JOIN orders
 ON customers.customerNumber = orders.customerNumber
 INNER JOIN orderdetails
 ON orders.orderNumber = orderdetails.orderNumber
-WHERE orderDetails.quantityOrdered = @maxQuantity;
+WHERE orderdetails.quantityOrdered = 97;
 
 -- 3
 SELECT CONCAT("februari ", YEAR(payments.paymentDate)) AS "Hari Pembayaran", COUNT(CONCAT("februari ", YEAR(payments.paymentDate))) AS "Jumlah Pelanggan", GROUP_CONCAT(DISTINCT customers.customerName SEPARATOR ", ") AS "List Pelanggan", SUM(payments.amount) AS "Jumlah Pembayaran" FROM payments
@@ -34,28 +36,18 @@ INNER JOIN orderdetails
 ON products.productCode = orderdetails.productCode
 INNER JOIN orders
 ON orderdetails.orderNumber = orders.orderNumber 
-WHERE orderdetails.productCode = 'S12_1108'
+WHERE orderdetails.productCode = 'S12_1108' #
 GROUP BY orderdetails.priceEach
 HAVING SUM(orderdetails.quantityOrdered) * orderdetails.priceEach - SUM(orderdetails.quantityOrdered) * products.buyPrice > 5000
 ORDER BY SUM(orderdetails.quantityOrdered) * orderdetails.priceEach - SUM(orderdetails.quantityOrdered) * products.buyPrice DESC;
 
 -- 5
-SELECT offices.addressLine1, CONCAT(LEFT(offices.phone, LENGTH(offices.phone) - 6), "* ****"), COUNT(employees.officeCode) FROM employees
-INNER JOIN offices
-ON offices.officeCode = employees.officeCode
-GROUP BY offices.officeCode;
-
-
-SELECT offices.officeCode, count(customers.salesRepEmployeeNumber) FROM customers
+SELECT offices.addressLine1 AS "Alamat", CONCAT(LEFT(offices.phone, LENGTH(offices.phone) - 6), "* ****") AS "Nomor Telp", COUNT(DISTINCT employees.employeeNumber) AS "Jumlah Karyawan", COUNT( DISTINCT customers.customerName) AS "Jumlah Pelanggan", CAST(AVG(payments.amount) AS DECIMAL(7,2)) AS "Rata - Rata Penghasilan"
+FROM offices
 INNER JOIN employees
-ON employees.employeeNumber = customers.salesRepEmployeeNumber
-INNER JOIN offices
 ON offices.officeCode = employees.officeCode
-GROUP BY offices.officeCode;
-
-SELECT offices.addressLine1, CONCAT(LEFT(offices.phone, LENGTH(offices.phone) - 6), "* ****"), employees.officeCode, customers.salesRepEmployeeNumber
-FROM employees
-INNER JOIN offices
-ON offices.officeCode = employees.officeCode
-INNER JOIN customers
-ON employees.employeeNumber = customers.salesRepEmployeeNumber;
+LEFT JOIN customers
+ON customers.salesRepEmployeeNumber = employees.employeeNumber
+LEFT JOIN payments
+ON customers.customerNumber = payments.customerNumber
+GROUP BY offices.officeCode
