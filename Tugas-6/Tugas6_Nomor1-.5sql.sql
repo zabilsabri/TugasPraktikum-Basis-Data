@@ -44,8 +44,8 @@ SELECT offices.addressLine1 AS "Alamat", CONCAT(LEFT(offices.phone, LENGTH(offic
 FROM offices
 INNER JOIN employees
 ON offices.officeCode = employees.officeCode
-INNER JOIN customers
+LEFT JOIN customers
 ON customers.salesRepEmployeeNumber = employees.employeeNumber
-INNER JOIN payments
+LEFT JOIN payments
 ON customers.customerNumber = payments.customerNumber
 GROUP BY offices.officeCode;
