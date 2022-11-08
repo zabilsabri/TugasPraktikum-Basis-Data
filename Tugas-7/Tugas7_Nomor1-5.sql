@@ -3,7 +3,7 @@ SELECT customers.customerNumber, customers.customerName AS `Nama Customers`, MAX
 FROM customers
 LEFT JOIN (SELECT payments.amount AS amount, payments.customerNumber AS numbers FROM payments) AS a
 ON numbers = customers.customerNumber
-GROUP BY customers.customerName;
+GROUP BY customers.customerNumber;
 
 -- 2
 SELECT * FROM employees WHERE officeCode = 
@@ -17,14 +17,18 @@ FROM products AS b
 WHERE EXISTS (SELECT products.productName FROM products WHERE b.productName LIKE '%ford%');
 
 -- 4
-SELECT cName, fName, oNumber, MAX(pAmount)
-FROM (SELECT customers.customerName AS cName, employees.firstName AS fName, orders.orderNumber AS oNumber, payments.amount AS pAmount FROM payments
-INNER JOIN customers
-ON payments.customerNumber = customers.customerNumber
+SELECT cName AS `Nama Pelanggan`, CONCAT(fName, ' ', lName) AS `Nama Karyawan`, oNumber AS `Nomor Pesanan`, pAmount AS `Biaya Pesanan`
+FROM (SELECT customers.customerName AS cName, employees.firstName AS fName, employees.lastName AS lName,orderdetails.orderNumber AS oNumber, SUM(orderdetails.quantityOrdered * orderdetails.priceEach) AS pAmount
+FROM orderdetails
 INNER JOIN orders
-ON customers.customerNumber = orders.customerNumber
+ON orderdetails.orderNumber = orders.orderNumber
+INNER JOIN customers
+ON orders.customerNumber = customers.customerNumber
 INNER JOIN employees
-ON customers.salesRepEmployeeNumber = employees.employeeNumber) AS t;
+ON customers.salesRepEmployeeNumber = employees.employeeNumber
+GROUP BY orderdetails.orderNumber
+ORDER BY SUM(orderdetails.quantityOrdered * orderdetails.priceEach) DESC
+LIMIT 1) AS t;
 
 -- 5
 SELECT DISTINCT LENGTH(country) AS `karakter`, country
